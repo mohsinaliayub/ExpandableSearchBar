@@ -9,7 +9,15 @@ import SwiftUI
 
 struct Home: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ScrollView(.vertical) {
+            LazyVStack(spacing: 15) {
+                
+            }
+            .safeAreaPadding(15)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                
+            }
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  Home.swift
 //  ExpandableSearchBar
 //
 //  Created by Mohsin Ali Ayub on 29.04.24.
@@ -7,12 +7,9 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct Home: View {
     var body: some View {
-        NavigationStack {
-            Home()
-                .toolbar(.hidden, for: .navigationBar)
-        }
+        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
     }
 }
 

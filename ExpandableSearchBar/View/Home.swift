@@ -36,7 +36,7 @@ struct Home: View {
         GeometryReader { proxy in
             let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
             // Just a random value. The lower the value, the faster the scroll animation will be.
-            let progress = max(min(-minY / 70, 1), 0)
+            let progress = isSearching ? 1 : max(min(-minY / 70, 1), 0)
             
             
             
@@ -110,11 +110,14 @@ struct Home: View {
             }
             .padding(.top, 25)
             .safeAreaPadding(.horizontal, 15)
-            .offset(y: minY < 0 ? -minY : 0)
+            // making nav bar always appear at top when search is active
+            .offset(y: minY < 0 || isSearching ? -minY : 0)
             .offset(y: -progress * 65)
         }
         .frame(height: 190)
         .padding(.bottom, 10)
+        // remove extra space between nav bar and dummy messages when search is active
+        .padding(.bottom, isSearching ? -65 : 0)
     }
     
     /// A message view list with placeholders for both picture and message content.

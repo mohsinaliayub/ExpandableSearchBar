@@ -55,8 +55,9 @@ struct Home: View {
                 .padding(.horizontal, 15 - (progress * 15))
                 .frame(height: 45)
                 .background {
-                    RoundedRectangle(cornerRadius: 25)
+                    RoundedRectangle(cornerRadius: 25 - (progress * 25))
                         .fill(.background)
+                        .shadow(color: .gray.opacity(0.25), radius: 5, x: 0, y: 5)
                         // When scrolled up, it will fill the nav bar with background color
                         .padding(.top, -progress * 190)
                         .padding(.bottom, -progress * 65)
@@ -97,6 +98,7 @@ struct Home: View {
             .padding(.top, 25)
             .safeAreaPadding(.horizontal, 15)
             .offset(y: minY < 0 ? -minY : 0)
+            .offset(y: -progress * 65)
         }
         .frame(height: 190)
         .padding(.bottom, 10)

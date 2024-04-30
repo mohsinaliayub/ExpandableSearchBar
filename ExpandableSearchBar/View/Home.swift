@@ -10,6 +10,7 @@ import SwiftUI
 struct Home: View {
     // View properties
     @State private var searchText = ""
+    @FocusState private var isSearching: Bool
     @State private var activeTab: Tab = .all
     @Environment(\.colorScheme) private var scheme
     @Namespace private var animation
@@ -23,6 +24,7 @@ struct Home: View {
             .safeAreaInset(edge: .top, spacing: 0) {
                 expandableNavBar()
             }
+            .animation(.snappy(duration: 0.3), value: isSearching)
         }
         .background(.gray.opacity(0.15))
         .contentMargins(.top, 190, for: .scrollIndicators)
@@ -51,6 +53,16 @@ struct Home: View {
                         .font(.title3)
                     
                     TextField("Search conversations", text: $searchText)
+                        .focused($isSearching)
+                    
+                    if isSearching {
+                        Button(action: {
+                            isSearching = false
+                        }) {
+                            Image(systemName: "xmark")
+                                .font(.title3)
+                        }
+                    }
                 }
                 .padding(.vertical, 10)
                 .padding(.horizontal, 15 - (progress * 15))

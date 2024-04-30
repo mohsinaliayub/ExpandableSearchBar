@@ -10,6 +10,9 @@ import SwiftUI
 struct Home: View {
     // View properties
     @State private var searchText = ""
+    @State private var activeTab: Tab = .all
+    @Environment(\.colorScheme) private var scheme
+    @Namespace private var animation
     
     var body: some View {
         ScrollView(.vertical) {
@@ -48,9 +51,40 @@ struct Home: View {
                 RoundedRectangle(cornerRadius: 25)
                     .fill(.background)
             }
+            
+            // Custom Segmented Picker
+            ScrollView(.horizontal) {
+                HStack(spacing: 12) {
+                    ForEach(Tab.allCases, id: \.rawValue) { tab in
+                        Button(action: {
+                            withAnimation(.snappy) {
+                                activeTab = tab
+                            }
+                        }) {
+                            Text(tab.rawValue)
+                                .font(.callout)
+                                .foregroundStyle(activeTab == tab ? (scheme == .dark ? .black : .white) : .primary)
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 15)
+                                .background {
+                                    if activeTab == tab {
+                                        Capsule()
+                                            .fill(Color.primary)
+                                            .matchedGeometryEffect(id: "ACTIVETAB", in: animation)
+                                    } else {
+                                        Capsule()
+                                            .fill(.background)
+                                    }
+                                }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .frame(height: 50)
         }
         .padding(.top, 25)
-        .padding(.horizontal, 15)
+        .safeAreaPadding(.horizontal, 15)
         .padding(.bottom, 10)
     }
     

@@ -30,61 +30,75 @@ struct Home: View {
     /// Expandable navigation bar.
     @ViewBuilder
     func expandableNavBar(_ title: String = "Messages") -> some View {
-        VStack {
-            // Title
-            Text(title)
-                .font(.largeTitle.bold())
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 10)
+        GeometryReader { proxy in
+            let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
+            // Just a random value. The lower the value, the faster the scroll animation will be.
+            let progress = max(min(-minY / 70, 1), 0)
             
-            // Search bar
-            HStack(spacing: 12) {
-                Image(systemName: "magnifyingglass")
-                    .font(.title3)
+            
+            
+            VStack {
+                // Title
+                Text(title)
+                    .font(.largeTitle.bold())
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 10)
                 
-                TextField("Search conversations", text: $searchText)
-            }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 15)
-            .frame(height: 45)
-            .background {
-                RoundedRectangle(cornerRadius: 25)
-                    .fill(.background)
-            }
-            
-            // Custom Segmented Picker
-            ScrollView(.horizontal) {
+                // Search bar
                 HStack(spacing: 12) {
-                    ForEach(Tab.allCases, id: \.rawValue) { tab in
-                        Button(action: {
-                            withAnimation(.snappy) {
-                                activeTab = tab
-                            }
-                        }) {
-                            Text(tab.rawValue)
-                                .font(.callout)
-                                .foregroundStyle(activeTab == tab ? (scheme == .dark ? .black : .white) : .primary)
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 15)
-                                .background {
-                                    if activeTab == tab {
-                                        Capsule()
-                                            .fill(Color.primary)
-                                            .matchedGeometryEffect(id: "ACTIVETAB", in: animation)
-                                    } else {
-                                        Capsule()
-                                            .fill(.background)
-                                    }
+                    Image(systemName: "magnifyingglass")
+                        .font(.title3)
+                    
+                    TextField("Search conversations", text: $searchText)
+                }
+                .padding(.vertical, 10)
+                .padding(.horizontal, 15 - (progress * 15))
+                .frame(height: 45)
+                .background {
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(.background)
+                        // When scrolled up, it will fill the nav bar with background color
+                        .padding(.top, -progress * 190)
+                        .padding(.bottom, -progress * 65)
+                        .padding(.horizontal, -progress * 15)
+                }
+                
+                // Custom Segmented Picker
+                ScrollView(.horizontal) {
+                    HStack(spacing: 12) {
+                        ForEach(Tab.allCases, id: \.rawValue) { tab in
+                            Button(action: {
+                                withAnimation(.snappy) {
+                                    activeTab = tab
                                 }
+                            }) {
+                                Text(tab.rawValue)
+                                    .font(.callout)
+                                    .foregroundStyle(activeTab == tab ? (scheme == .dark ? .black : .white) : .primary)
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 15)
+                                    .background {
+                                        if activeTab == tab {
+                                            Capsule()
+                                                .fill(Color.primary)
+                                                .matchedGeometryEffect(id: "ACTIVETAB", in: animation)
+                                        } else {
+                                            Capsule()
+                                                .fill(.background)
+                                        }
+                                    }
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
+                .frame(height: 50)
             }
-            .frame(height: 50)
+            .padding(.top, 25)
+            .safeAreaPadding(.horizontal, 15)
+            .offset(y: minY < 0 ? -minY : 0)
         }
-        .padding(.top, 25)
-        .safeAreaPadding(.horizontal, 15)
+        .frame(height: 190)
         .padding(.bottom, 10)
     }
     

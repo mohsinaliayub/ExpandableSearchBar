@@ -25,6 +25,7 @@ struct Home: View {
             }
         }
         .background(.gray.opacity(0.15))
+        .contentMargins(.top, 190, for: .scrollIndicators)
     }
     
     /// Expandable navigation bar.

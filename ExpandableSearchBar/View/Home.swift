@@ -7,9 +7,13 @@
 
 import SwiftUI
 
-struct Home: View {
+struct Home<ScrollableContent: View>: View {
+    // Required properties
+    let title: String
+    @Binding var searchText: String
+    @ViewBuilder let scrollableContent: ScrollableContent
+    
     // View properties
-    @State private var searchText = ""
     @FocusState private var isSearching: Bool
     @State private var activeTab: Tab = .all
     @Environment(\.colorScheme) private var scheme
@@ -18,11 +22,11 @@ struct Home: View {
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 15) {
-                dummyMessagesView
+                scrollableContent
             }
             .safeAreaPadding(15)
             .safeAreaInset(edge: .top, spacing: 0) {
-                expandableNavBar()
+                expandableNavBar
             }
             .animation(.snappy(duration: 0.3), value: isSearching)
         }
@@ -33,7 +37,7 @@ struct Home: View {
     
     /// Expandable navigation bar.
     @ViewBuilder
-    func expandableNavBar(_ title: String = "Messages") -> some View {
+    var expandableNavBar: some View {
         GeometryReader { proxy in
             let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
             let scrollViewHeight = proxy.bounds(of: .scrollView(axis: .vertical))?.height ?? 0
@@ -49,69 +53,8 @@ struct Home: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, Constants.bottomPadding)
                 
-                // Search bar
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .font(.title3)
-                    
-                    TextField("Search conversations", text: $searchText)
-                        .focused($isSearching)
-                    
-                    if isSearching {
-                        Button(action: {
-                            isSearching = false
-                        }) {
-                            Image(systemName: "xmark")
-                                .font(.title3)
-                        }
-                        .transition(.asymmetric(insertion: .push(from: .bottom), removal: .push(from: .top)))
-                    }
-                }
-                .foregroundStyle(Color.primary)
-                .padding(.vertical, Constants.bottomPadding)
-                .padding(.horizontal, Constants.horizontalPadding - (progress * Constants.horizontalPadding))
-                .frame(height: Constants.searchBarHeight)
-                .clipShape(Capsule())
-                .background {
-                    RoundedRectangle(cornerRadius: Constants.cornerRadiusSearchBar - (progress * Constants.cornerRadiusSearchBar))
-                        .fill(.background)
-                        .shadow(color: .gray.opacity(0.25), radius: 5, x: 0, y: 5)
-                        // When scrolled up, it will fill the nav bar with background color
-                        .padding(.top, -progress * Constants.navBarHeight)
-                        .padding(.bottom, -progress * Constants.stretchedNavBarHeight)
-                        .padding(.horizontal, -progress * Constants.horizontalPadding)
-                }
-                
-                // Custom Segmented Picker
-                ScrollView(.horizontal) {
-                    HStack {
-                        ForEach(Tab.allCases, id: \.rawValue) { tab in
-                            Button(action: {
-                                withAnimation(.snappy) {
-                                    activeTab = tab
-                                }
-                            }) {
-                                Text(tab.rawValue)
-                                    .font(.callout)
-                                    .foregroundStyle(activeTab == tab ? (scheme == .dark ? .black : .white) : .primary)
-                                    .padding(.vertical, Constants.verticalPadding)
-                                    .padding(.horizontal, Constants.horizontalPadding)
-                                    .background {
-                                        if activeTab == tab {
-                                            Capsule()
-                                                .fill(Color.primary)
-                                                .matchedGeometryEffect(id: "ACTIVETAB", in: animation)
-                                        } else {
-                                            Capsule()
-                                                .fill(.background)
-                                        }
-                                    }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
-                .frame(height: Constants.segmentedPickersHeight)
+                searchBar(progress: progress)
+                segmentedPicker
             }
             .padding(.top, Constants.searchBarTopPadding)
             .safeAreaPadding(.horizontal, Constants.horizontalPadding)
@@ -125,28 +68,71 @@ struct Home: View {
         .padding(.bottom, isSearching ? -Constants.stretchedNavBarHeight : 0)
     }
     
-    /// A message view list with placeholders for both picture and message content.
-    @ViewBuilder
-    var dummyMessagesView: some View {
-        ForEach(0..<20, id: \.self) { _ in
-            HStack(spacing: 12) {
-                Circle()
-                    .frame(width: 55, height: 55)
-                
-                VStack(alignment: .leading, spacing: 6) {
-                    Rectangle()
-                        .frame(width: 140, height: 8)
-                    Rectangle()
-                        .frame(height: 8)
-                    Rectangle()
-                        .frame(width: 80, height: 8)
+    private var segmentedPicker: some View {
+        ScrollView(.horizontal) {
+            HStack {
+                ForEach(Tab.allCases, id: \.rawValue) { tab in
+                    Button(action: {
+                        withAnimation(.snappy) {
+                            activeTab = tab
+                        }
+                    }) {
+                        Text(tab.rawValue)
+                            .font(.callout)
+                            .foregroundStyle(activeTab == tab ? (scheme == .dark ? .black : .white) : .primary)
+                            .padding(.vertical, Constants.verticalPadding)
+                            .padding(.horizontal, Constants.horizontalPadding)
+                            .background {
+                                if activeTab == tab {
+                                    Capsule()
+                                        .fill(Color.primary)
+                                        .matchedGeometryEffect(id: "ACTIVETAB", in: animation)
+                                } else {
+                                    Capsule()
+                                        .fill(.background)
+                                }
+                            }
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .foregroundStyle(.gray.opacity(0.25))
-            .padding(.horizontal, 15)
         }
+        .frame(height: Constants.segmentedPickersHeight)
     }
     
+    private func searchBar(progress: CGFloat) -> some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .font(.title3)
+            
+            TextField("Search conversations", text: $searchText)
+                .focused($isSearching)
+            
+            if isSearching {
+                Button(action: {
+                    isSearching = false
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.title3)
+                }
+                .transition(.asymmetric(insertion: .push(from: .bottom), removal: .push(from: .top)))
+            }
+        }
+        .foregroundStyle(Color.primary)
+        .padding(.vertical, Constants.bottomPadding)
+        .padding(.horizontal, Constants.horizontalPadding - (progress * Constants.horizontalPadding))
+        .frame(height: Constants.searchBarHeight)
+        .clipShape(Capsule())
+        .background {
+            RoundedRectangle(cornerRadius: Constants.cornerRadiusSearchBar - (progress * Constants.cornerRadiusSearchBar))
+                .fill(.background)
+                .shadow(color: .gray.opacity(0.25), radius: 5, x: 0, y: 5)
+                // When scrolled up, it will fill the nav bar with background color
+                .padding(.top, -progress * Constants.navBarHeight)
+                .padding(.bottom, -progress * Constants.stretchedNavBarHeight)
+                .padding(.horizontal, -progress * Constants.horizontalPadding)
+        }
+    }
     
 }
 
@@ -179,5 +165,5 @@ struct CustomScrollTargetBehavior: ScrollTargetBehavior {
 }
 
 #Preview {
-    Home()
+    ContentView()
 }

@@ -24,9 +24,28 @@ The code works, but there are still a few rough edges that I want to work on nex
 - [ ] Make a component out of the code to make it reusable.
 
 ## Usage
-To be provided later. After the component is made reusable, I will provide the instructions here.
+You need to copy both [ExpandableSearchBar.swift](ExpandableSearchBar/View/ExpandableSearchBar.swift) and [Tab.swift](ExpandableSearchBar/Model/Tab.swift) to your code.
+You can change the **case values** of [Tab.swift](ExpandableSearchBar/Model/Tab.swift), but don't remove the case value *.all*.
 
-Soon to be updated!
+After copying, it's fairly simple to use. Initialize the [ExpandableSearchBar.swift](ExpandableSearchBar/View/ExpandableSearchBar.swift) in your view like this:
+
+```swift
+struct ContentView: View {
+    private let title = "Messages"
+    @State private var searchText = ""
+    
+    var body: some View {
+        NavigationStack {
+            ExpandableSearchBar(title: title, searchText: $searchText) {
+                // YOUR CUSTOM SCROLLABLE CONTENT GOES HERE...
+            }
+            .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+}
+```
+
+I will make it a little more easier to use soon!
 
 ## Screenshots
 <img src="/Screenshots/App.gif" alt="App testing gif">

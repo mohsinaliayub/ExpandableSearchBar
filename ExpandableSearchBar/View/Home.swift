@@ -36,6 +36,8 @@ struct Home: View {
     func expandableNavBar(_ title: String = "Messages") -> some View {
         GeometryReader { proxy in
             let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
+            let scrollViewHeight = proxy.bounds(of: .scrollView(axis: .vertical))?.height ?? 0
+            let scaleProgress = minY > 0 ? 1 + (max(min(minY / scrollViewHeight, 1), 0) * 0.5) : 1
             // Just a random value. The lower the value, the faster the scroll animation will be.
             let progress = isSearching ? 1 : max(min(-minY / 70, 1), 0)
             
@@ -45,6 +47,7 @@ struct Home: View {
                 // Title
                 Text(title)
                     .font(.largeTitle.bold())
+                    .scaleEffect(scaleProgress, anchor: .topLeading)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 10)
                 

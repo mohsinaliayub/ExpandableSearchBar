@@ -21,10 +21,10 @@ struct Home<ScrollableContent: View>: View {
     
     var body: some View {
         ScrollView(.vertical) {
-            LazyVStack(spacing: 15) {
+            LazyVStack(spacing: Constants.horizontalPadding) {
                 scrollableContent
             }
-            .safeAreaPadding(15)
+            .safeAreaPadding(Constants.horizontalPadding)
             .safeAreaInset(edge: .top, spacing: 0) {
                 expandableNavBar
             }

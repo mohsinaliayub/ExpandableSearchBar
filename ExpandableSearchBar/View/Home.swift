@@ -26,6 +26,7 @@ struct Home: View {
             }
             .animation(.snappy(duration: 0.3), value: isSearching)
         }
+        .scrollTargetBehavior(CustomScrollTargetBehavior())
         .background(.gray.opacity(0.15))
         .contentMargins(.top, 190, for: .scrollIndicators)
     }
@@ -62,11 +63,14 @@ struct Home: View {
                             Image(systemName: "xmark")
                                 .font(.title3)
                         }
+                        .transition(.asymmetric(insertion: .push(from: .bottom), removal: .push(from: .top)))
                     }
                 }
+                .foregroundStyle(Color.primary)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 15 - (progress * 15))
                 .frame(height: 45)
+                .clipShape(Capsule())
                 .background {
                     RoundedRectangle(cornerRadius: 25 - (progress * 25))
                         .fill(.background)
@@ -139,6 +143,22 @@ struct Home: View {
             }
             .foregroundStyle(.gray.opacity(0.25))
             .padding(.horizontal, 15)
+        }
+    }
+}
+
+// IMP: The view may appear uneven if the user stops scrolling in the middle of
+// a scroll transition. In certain circumstances, we may use the new Scroll target
+// Behavior to detect when the dragging is complete, allowing us to either reset the
+// transition to its start phase or finish it based on the end target value.
+struct CustomScrollTargetBehavior: ScrollTargetBehavior {
+    func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
+        if target.rect.minY < 70 {
+            if target.rect.minY < 35 {
+                target.rect.origin = .zero
+            } else {
+                target.rect.origin = .init(x: 0, y: 70)
+            }
         }
     }
 }

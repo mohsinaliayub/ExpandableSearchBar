@@ -13,7 +13,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            Home(title: title, searchText: $searchText) {
+            ExpandableSearchBar(title: title, searchText: $searchText) {
                 dummyMessagesView
             }
             .toolbar(.hidden, for: .navigationBar)

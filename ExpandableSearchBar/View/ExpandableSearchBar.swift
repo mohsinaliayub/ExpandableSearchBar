@@ -1,5 +1,5 @@
 //
-//  Home.swift
+//  ExpandableSearchBar.swift
 //  ExpandableSearchBar
 //
 //  Created by Mohsin Ali Ayub on 29.04.24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Home<ScrollableContent: View>: View {
+struct ExpandableSearchBar<ScrollableContent: View>: View {
     // Required properties
     let title: String
     @Binding var searchText: String

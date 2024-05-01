@@ -28,7 +28,7 @@ struct Home: View {
         }
         .scrollTargetBehavior(CustomScrollTargetBehavior())
         .background(.gray.opacity(0.15))
-        .contentMargins(.top, 190, for: .scrollIndicators)
+        .contentMargins(.top, Constants.navBarHeight, for: .scrollIndicators)
     }
     
     /// Expandable navigation bar.
@@ -39,9 +39,7 @@ struct Home: View {
             let scrollViewHeight = proxy.bounds(of: .scrollView(axis: .vertical))?.height ?? 0
             let scaleProgress = minY > 0 ? 1 + (max(min(minY / scrollViewHeight, 1), 0) * 0.5) : 1
             // Just a random value. The lower the value, the faster the scroll animation will be.
-            let progress = isSearching ? 1 : max(min(-minY / 70, 1), 0)
-            
-            
+            let progress = isSearching ? 1 : max(min(-minY / Constants.stretchedNavBarHeight, 1), 0)
             
             VStack {
                 // Title
@@ -49,10 +47,10 @@ struct Home: View {
                     .font(.largeTitle.bold())
                     .scaleEffect(scaleProgress, anchor: .topLeading)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 10)
+                    .padding(.bottom, Constants.bottomPadding)
                 
                 // Search bar
-                HStack(spacing: 12) {
+                HStack {
                     Image(systemName: "magnifyingglass")
                         .font(.title3)
                     
@@ -70,23 +68,23 @@ struct Home: View {
                     }
                 }
                 .foregroundStyle(Color.primary)
-                .padding(.vertical, 10)
-                .padding(.horizontal, 15 - (progress * 15))
-                .frame(height: 45)
+                .padding(.vertical, Constants.bottomPadding)
+                .padding(.horizontal, Constants.horizontalPadding - (progress * Constants.horizontalPadding))
+                .frame(height: Constants.searchBarHeight)
                 .clipShape(Capsule())
                 .background {
-                    RoundedRectangle(cornerRadius: 25 - (progress * 25))
+                    RoundedRectangle(cornerRadius: Constants.cornerRadiusSearchBar - (progress * Constants.cornerRadiusSearchBar))
                         .fill(.background)
                         .shadow(color: .gray.opacity(0.25), radius: 5, x: 0, y: 5)
                         // When scrolled up, it will fill the nav bar with background color
-                        .padding(.top, -progress * 190)
-                        .padding(.bottom, -progress * 65)
-                        .padding(.horizontal, -progress * 15)
+                        .padding(.top, -progress * Constants.navBarHeight)
+                        .padding(.bottom, -progress * Constants.stretchedNavBarHeight)
+                        .padding(.horizontal, -progress * Constants.horizontalPadding)
                 }
                 
                 // Custom Segmented Picker
                 ScrollView(.horizontal) {
-                    HStack(spacing: 12) {
+                    HStack {
                         ForEach(Tab.allCases, id: \.rawValue) { tab in
                             Button(action: {
                                 withAnimation(.snappy) {
@@ -96,8 +94,8 @@ struct Home: View {
                                 Text(tab.rawValue)
                                     .font(.callout)
                                     .foregroundStyle(activeTab == tab ? (scheme == .dark ? .black : .white) : .primary)
-                                    .padding(.vertical, 8)
-                                    .padding(.horizontal, 15)
+                                    .padding(.vertical, Constants.verticalPadding)
+                                    .padding(.horizontal, Constants.horizontalPadding)
                                     .background {
                                         if activeTab == tab {
                                             Capsule()
@@ -113,18 +111,18 @@ struct Home: View {
                         }
                     }
                 }
-                .frame(height: 50)
+                .frame(height: Constants.segmentedPickersHeight)
             }
-            .padding(.top, 25)
-            .safeAreaPadding(.horizontal, 15)
+            .padding(.top, Constants.searchBarTopPadding)
+            .safeAreaPadding(.horizontal, Constants.horizontalPadding)
             // making nav bar always appear at top when search is active
             .offset(y: minY < 0 || isSearching ? -minY : 0)
-            .offset(y: -progress * 65)
+            .offset(y: -progress * Constants.stretchedNavBarHeight)
         }
-        .frame(height: 190)
-        .padding(.bottom, 10)
+        .frame(height: Constants.navBarHeight)
+        .padding(.bottom, Constants.bottomPadding)
         // remove extra space between nav bar and dummy messages when search is active
-        .padding(.bottom, isSearching ? -65 : 0)
+        .padding(.bottom, isSearching ? -Constants.stretchedNavBarHeight : 0)
     }
     
     /// A message view list with placeholders for both picture and message content.
@@ -148,6 +146,20 @@ struct Home: View {
             .padding(.horizontal, 15)
         }
     }
+    
+    
+}
+
+enum Constants {
+    static let navBarHeight: CGFloat = 190
+    static let stretchedNavBarHeight: CGFloat = 65
+    static let horizontalPadding: CGFloat = 15
+    static let searchBarHeight: CGFloat = 45
+    static let segmentedPickersHeight: CGFloat = 50
+    static let verticalPadding: CGFloat = 8
+    static let bottomPadding: CGFloat = 10
+    static let searchBarTopPadding: CGFloat = 25
+    static let cornerRadiusSearchBar: CGFloat = 25
 }
 
 // IMP: The view may appear uneven if the user stops scrolling in the middle of
@@ -156,16 +168,16 @@ struct Home: View {
 // transition to its start phase or finish it based on the end target value.
 struct CustomScrollTargetBehavior: ScrollTargetBehavior {
     func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
-        if target.rect.minY < 70 {
-            if target.rect.minY < 35 {
+        if target.rect.minY < Constants.stretchedNavBarHeight {
+            if target.rect.minY < Constants.stretchedNavBarHeight / 2 {
                 target.rect.origin = .zero
             } else {
-                target.rect.origin = .init(x: 0, y: 70)
+                target.rect.origin = .init(x: 0, y: Constants.stretchedNavBarHeight)
             }
         }
     }
 }
 
 #Preview {
-    ContentView()
+    Home()
 }
